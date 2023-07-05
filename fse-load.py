@@ -308,7 +308,7 @@ apple = loadImage("blue_gem.png", 100,100)
 banana = loadImage("green_gem.png", 100,100)
 pear = loadImage("red_gem.png", 100,100)
 bomb = loadImage("bomb.png", 100,100)
-fruitPics = [bomb, banana, pear, apple, apple, pear]
+fruitPics = [bomb, banana, pear, apple, apple, pear, banana]
 fruitlvlbg = loadImage("Fruit Ninja Level.png", 1000,600)
 heart = loadImage("heart.png", 50,50)
 emptyheart = loadImage("empty heart.png", 50,50)
@@ -337,7 +337,7 @@ class fruitNinja: #class for the functions to actually play the level
         if lvl == 1: #if the level is 1, there are no bombs
             return fruit(choice(fruitPics[1:]),randint(100, 900), randint(0, 50), 1)
         else:
-            isbomb = randint(0, len(fruitPics)-1) #if isbomb has a value of 0, it's a bomb, otherwise it's a random other fruit 
+            isbomb = randint(0, 1000)%len(fruitPics) #if isbomb has a value of 0, it's a bomb, otherwise it's a random other fruit 
             return fruit(fruitPics[isbomb], randint(100,900), randint(0,50), isbomb)
 
     def drawScene(fruits, score, lives, towin): #function to draw the screen
@@ -374,19 +374,22 @@ class fruitNinja: #class for the functions to actually play the level
             Type = item.Type #0 for bomb, anything else is not a bomb
 
             if clicking:
-                if RECT.collidepoint((x, y)) and screen.get_at((x,y)) != fruitlvlbg.get_at((x, y)): #if the player is clicking on a fruit, checks if the color is not the background color
-                    if not Type: #If the player clicked a bomb, they lose a life
-                        lives -= 1
+                try:
+                    if RECT.collidepoint((x, y)) and screen.get_at((x,y)) != fruitlvlbg.get_at((x, y)): #if the player is clicking on a fruit, checks if the color is not the background color
+                        if not Type: #If the player clicked a bomb, they lose a life
+                            lives -= 1
 
-                    else: #The player has clicked on a fruit, so their score increases by one and this fruit is NOT added to newLis (it is gone now)
-                        score += 1
+                        else: #The player has clicked on a fruit, so their score increases by one and this fruit is NOT added to newLis (it is gone now)
+                            score += 1
 
-                else:
-                    if item.y <= 600: #if the fruit is still on the screen, appends it to the list
-                        newLis.append(fruit(item.pic, item.x, item.y, item.Type))
+                    else:
+                        if item.y <= 600: #if the fruit is still on the screen, appends it to the list
+                            newLis.append(fruit(item.pic, item.x, item.y, item.Type))
 
-                    elif Type: #If the fruit was NOT a bomb and the fruit has hit the bottom, lives decrements
-                        lives -= 1
+                        elif Type: #If the fruit was NOT a bomb and the fruit has hit the bottom, lives decrements
+                            lives -= 1
+                except:
+                    1
             else:
                 if item.y <= 600: #if the fruit is still on the screen, appends it to the list
                     newLis.append(fruit(item.pic, item.x, item.y, item.Type))
@@ -411,6 +414,7 @@ class fruitNinja: #class for the functions to actually play the level
 
             elif lives <= 0: #If the player has not enough lives left, they lose the level and the player is taken back to the Loading screen
                 win = False
+                mainMusic.play()
                 curScreen = "Lose"
                 break
 
@@ -448,10 +452,10 @@ class fruitNinja: #class for the functions to actually play the level
         lvl.music.stop()
 
 fruitmusic = mixer.Sound("FSE-sound/fruitlvl1.mp3")
-LEVEL1 = fruitLevel(1, 2, 10, 10, 50,fruitmusic)
-LEVEL2 = fruitLevel(2, 1, 10, 10, 30,fruitmusic)
-LEVEL3 = fruitLevel(3, 1, 10, 20, 50,fruitmusic)
-LEVEL4 = fruitLevel(4, 2.2, 10, 30, 99,fruitmusic)
+LEVEL1 = fruitLevel(1, .22, 10, 10, 50,fruitmusic)
+LEVEL2 = fruitLevel(2, .21, 10, 10, 30,fruitmusic)
+LEVEL3 = fruitLevel(3, .21, 10, 20, 50,fruitmusic)
+LEVEL4 = fruitLevel(4, .22, 10, 30, 99,fruitmusic)
 fruitlvls = [LEVEL1, LEVEL2, LEVEL3, LEVEL4] #list containing the fruitNinja levels
 
 ####################################################################################################################################################################
@@ -992,6 +996,7 @@ while mainRunning:
       
         if replayRect.collidepoint((mx,my)): 
             if mb[0]:
+                mainMusic.stop()
                 loadingScreen(100)
                 play() #plays the level again
                
